@@ -151,7 +151,10 @@ SENSORS AND COMPONENTS
 
 8. ISD1820 Voice Recorder Module
 - Used for fallen stick recovery
-- Plays recorded voice if stick is lost
+- If stick falls, user presses button in app
+- App sends signal to stick
+- ISD1820 plays recorded voice through speaker
+- Nearby people can hear and help recover the stick
 
 9. OLED Display
 - Displays:
@@ -353,7 +356,7 @@ Respond naturally and friendly.
 
 Examples:
 "Hello 😊 How can I help you with Smart Navio today?"
-"I’m doing great 😊 Hope you are doing well too!"
+"I'm doing great 😊 Hope you are doing well too!"
 "Good morning ☀️"
 "Thank you 😊"
 
@@ -548,11 +551,9 @@ Example:
 const chatHistories = {};
 
 app.get("/", (req, res) => {
-
     res.json({
         status: "Smart Navio AI Server is Running!"
     });
-
 });
 
 app.post("/chat", async (req, res) => {
@@ -560,28 +561,22 @@ app.post("/chat", async (req, res) => {
     try {
 
         if (!req.body.message) {
-
             return res.json({
                 reply: "No message received."
             });
-
         }
 
         if (!API_KEY) {
-
             return res.json({
                 reply: "API key not configured."
             });
-
         }
 
         const sessionId =
             req.body.sessionId || "default";
 
         if (!chatHistories[sessionId]) {
-
             chatHistories[sessionId] = [];
-
         }
 
         chatHistories[sessionId].push({
@@ -590,70 +585,47 @@ app.post("/chat", async (req, res) => {
         });
 
         if (chatHistories[sessionId].length > 20) {
-
             chatHistories[sessionId] =
                 chatHistories[sessionId].slice(-20);
-
         }
 
         const response = await axios.post(
             "https://api.groq.com/openai/v1/chat/completions",
-
             {
-                model: "llama3-70b-8192",
-
+                model: "llama-3.3-70b-versatile",
                 messages: [
                     {
                         role: "system",
                         content: SYSTEM_PROMPT
                     },
-
                     ...chatHistories[sessionId]
                 ],
-
                 temperature: 0.7,
                 max_tokens: 1024
             },
-
             {
                 headers: {
-                    "Authorization":
-                        \`Bearer \${API_KEY}\`,
-
-                    "Content-Type":
-                        "application/json"
+                    "Authorization": `Bearer ${API_KEY}`,
+                    "Content-Type": "application/json"
                 }
             }
         );
 
         const reply =
-            response.data.choices[0]
-            .message.content;
+            response.data.choices[0].message.content;
 
         chatHistories[sessionId].push({
             role: "assistant",
             content: reply
         });
 
-        res.json({
-            reply: reply
-        });
+        res.json({ reply: reply });
 
     } catch (error) {
 
         console.log("===== GROQ ERROR =====");
-
-        console.log(
-            "Status:",
-            error.response?.status
-        );
-
-        console.log(
-            "Message:",
-            JSON.stringify(
-                error.response?.data
-            )
-        );
+        console.log("Status:", error.response?.status);
+        console.log("Message:", JSON.stringify(error.response?.data));
 
         const errorMsg =
             error.response?.data?.error?.message ||
@@ -662,18 +634,14 @@ app.post("/chat", async (req, res) => {
         res.json({
             reply: "Error: " + errorMsg
         });
-
     }
-
 });
 
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-
     console.log("=================================");
     console.log(" Smart Navio AI Server Running ");
     console.log(" Port:", PORT);
     console.log("=================================");
-
 });
