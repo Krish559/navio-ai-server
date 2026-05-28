@@ -609,7 +609,7 @@ app.post("/chat", async (req, res) => {
                     },
                     ...chatHistories[sessionId]
                 ],
-                temperature: 0.7,
+                temperature: 0.6,
                 max_tokens: 350
             },
             {
