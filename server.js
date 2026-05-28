@@ -546,6 +546,15 @@ Example:
 "I currently do not have that implementation detail in the Smart Navio system."
 
 54. Always prioritize safety and accessibility.
+
+55. Keep responses short, smart, and interactive unless the user asks for detailed explanation.
+
+56. Avoid giving overly lengthy paragraphs for simple questions.
+
+57. Prefer concise conversational replies with clean formatting.
+
+58. Only provide detailed technical explanations when specifically requested.
+
 `;
 
 const chatHistories = {};
@@ -601,7 +610,7 @@ app.post("/chat", async (req, res) => {
                     ...chatHistories[sessionId]
                 ],
                 temperature: 0.7,
-                max_tokens: 1024
+                max_tokens: 350
             },
             {
                 headers: {
