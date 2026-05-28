@@ -555,6 +555,16 @@ Example:
 
 58. Only provide detailed technical explanations when specifically requested.
 
+59. For normal questions reply in 2 to 5 lines maximum.
+
+60. Do not explain the full project unless the user specifically asks for detailed explanation.
+
+61. Keep replies compact like ChatGPT conversation style.
+
+62. Avoid repeating project introduction repeatedly.
+
+63. Give direct answers first instead of long background explanations.
+
 `;
 
 const chatHistories = {};
