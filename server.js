@@ -1,97 +1,72 @@
-
 const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+    origin: "*",
+    methods: ["GET", "POST"]
+}));
 
 app.use(express.json());
 
-const API_KEY =
-"AIzaSyCWTVEUKyuuJ7BHNWP68YufOBx-B6A8t_E";
+const API_KEY = "AIzaSyCWTVEUKyuuJ7BHNWP68YufOBx-B6A8t_E";
+
+app.get("/", (req, res) => {
+    res.json({ status: "Smart Navio AI Server is Running!" });
+});
 
 app.post("/chat", async (req, res) => {
 
-    try{
+    try {
 
-        const response =
-        await axios.post(
+        if (!req.body.message) {
+            return res.json({ reply: "No message received." });
+        }
 
+        const response = await axios.post(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${API_KEY}`,
-
             {
-
-                contents:[
-
+                contents: [
                     {
-
-                        parts:[
-
+                        parts: [
                             {
-
-                                text:req.body.message
-
+                                text: req.body.message
                             }
-
                         ]
-
                     }
-
                 ]
-
             },
-
             {
-
-                headers:{
-
-                    "Content-Type":
-                    "application/json"
-
+                headers: {
+                    "Content-Type": "application/json"
                 }
-
             }
-
         );
 
         const reply =
-        response.data
-        .candidates[0]
-        .content.parts[0]
-        .text;
+            response.data.candidates[0].content.parts[0].text;
+
+        res.json({ reply: reply });
+
+    } catch (error) {
+
+        console.log("=== GEMINI ERROR ===");
+        console.log("Status:", error.response?.status);
+        console.log("Message:", JSON.stringify(error.response?.data));
+
+        const errorMsg =
+            error.response?.data?.error?.message || error.message;
 
         res.json({
-
-            reply:reply
-
+            reply: "Error: " + errorMsg
         });
-
     }
-
-    catch(error){
-
-        console.log(error.response?.data || error.message);
-
-        res.json({
-
-            reply:
-            "Gemini API Error"
-
-        });
-
-    }
-
 });
 
-app.listen(3000, ()=>{
+const PORT = process.env.PORT || 3000;
 
-    console.log(
-    "Gemini AI Server Running"
-    );
-
+app.listen(PORT, () => {
+    console.log("Smart Navio AI Server Running on port " + PORT);
 });
-
-setInterval(()=>{},1000);
-
