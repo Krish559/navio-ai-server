@@ -11,7 +11,8 @@ app.use(cors({
 
 app.use(express.json());
 
-const API_KEY = "AIzaSyCWTVEUKyuuJ7BHNWP68YufOBx-B6A8t_E";
+// API key is now safe - stored in Render environment variables
+const API_KEY = process.env.GEMINI_API_KEY;
 
 app.get("/", (req, res) => {
     res.json({ status: "Smart Navio AI Server is Running!" });
@@ -23,6 +24,10 @@ app.post("/chat", async (req, res) => {
 
         if (!req.body.message) {
             return res.json({ reply: "No message received." });
+        }
+
+        if (!API_KEY) {
+            return res.json({ reply: "API key not configured." });
         }
 
         const response = await axios.post(
