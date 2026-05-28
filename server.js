@@ -11,8 +11,7 @@ app.use(cors({
 
 app.use(express.json());
 
-// API key is now safe - stored in Render environment variables
-const API_KEY = process.env.GEMINI_API_KEY;
+const API_KEY = process.env.GROQ_API_KEY;
 
 app.get("/", (req, res) => {
     res.json({ status: "Smart Navio AI Server is Running!" });
@@ -31,33 +30,31 @@ app.post("/chat", async (req, res) => {
         }
 
         const response = await axios.post(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`,
+            "https://api.groq.com/openai/v1/chat/completions",
             {
-                contents: [
+                model: "llama3-8b-8192",
+                messages: [
                     {
-                        parts: [
-                            {
-                                text: req.body.message
-                            }
-                        ]
+                        role: "user",
+                        content: req.body.message
                     }
                 ]
             },
             {
                 headers: {
+                    "Authorization": `Bearer ${API_KEY}`,
                     "Content-Type": "application/json"
                 }
             }
         );
 
-        const reply =
-            response.data.candidates[0].content.parts[0].text;
+        const reply = response.data.choices[0].message.content;
 
         res.json({ reply: reply });
 
     } catch (error) {
 
-        console.log("=== GEMINI ERROR ===");
+        console.log("=== GROQ ERROR ===");
         console.log("Status:", error.response?.status);
         console.log("Message:", JSON.stringify(error.response?.data));
 
