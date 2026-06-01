@@ -568,6 +568,11 @@ Example:
 `;
 
 const chatHistories = {};
+let freePool = 400000;
+let premiumPool = 100000;
+
+const FREE_STOP_LIMIT = 50000;
+const PREMIUM_STOP_LIMIT = 10000;
 
 app.get("/", (req, res) => {
     res.json({
@@ -578,6 +583,27 @@ app.get("/", (req, res) => {
 app.post("/chat", async (req, res) => {
 
     try {
+        const userType = req.body.userType || "free";
+
+        if (
+    userType === "free" &&
+    freePool <= FREE_STOP_LIMIT
+) {
+    return res.json({
+        reply:
+        "🚫 Free AI Unavailable Today\n\nDaily free quota reached."
+    });
+}
+
+if (
+    userType === "premium" &&
+    premiumPool <= PREMIUM_STOP_LIMIT
+) {
+    return res.json({
+        reply:
+        "🚫 Premium AI Unavailable Today\n\nPremium quota reached."
+    });
+}
 
         if (!req.body.message) {
             return res.json({
@@ -620,7 +646,7 @@ app.post("/chat", async (req, res) => {
                     ...chatHistories[sessionId]
                 ],
                 temperature: 0.6,
-                max_tokens: 350
+                max_tokens: 200
             },
             {
                 headers: {
