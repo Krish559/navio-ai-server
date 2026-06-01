@@ -206,7 +206,7 @@ if(userType === "free"){
     .update({
         freePool,
         premiumPool,
-        lastReset: new Date().toISOString().split("T")[0]
+        lastReset: today
     });
        
         console.log("Free Pool:", freePool);
