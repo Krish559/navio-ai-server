@@ -3,6 +3,8 @@ const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
 const fs = require("fs");
+const admin = require("firebase-admin");
+
 
 const app = express();
 
@@ -14,6 +16,15 @@ app.use(cors({
 app.use(express.json());
 
 const API_KEY = process.env.GROQ_API_KEY;
+const serviceAccount = JSON.parse(
+    process.env.FIREBASE_SERVICE_ACCOUNT
+);
+
+admin.initializeApp({
+    credential: admin.credential.cert(serviceAccount)
+});
+
+const db = admin.firestore();
 
 const SYSTEM_PROMPT = `
 You are Smart Navio AI Assistant.
@@ -36,12 +47,28 @@ Team:
 KRISH.S and Hariharan AC
 `;
 const chatHistories = {};
-const poolData = JSON.parse(
-    fs.readFileSync("pool.json", "utf8")
-);
+let freePool = 400000;
+let premiumPool = 100000;
 
-let freePool = poolData.freePool;
-let premiumPool = poolData.premiumPool;
+async function loadPools() {
+
+    const doc = await db
+        .collection("pools")
+        .doc("main")
+        .get();
+
+    if (doc.exists) {
+
+        const data = doc.data();
+
+        freePool = data.freePool;
+        premiumPool = data.premiumPool;
+
+        console.log("Pools loaded from Firestore");
+        console.log("Free Pool:", freePool);
+        console.log("Premium Pool:", premiumPool);
+    }
+}
 
 const FREE_STOP_LIMIT = 50000;
 const PREMIUM_STOP_LIMIT = 10000;
@@ -142,14 +169,15 @@ if(userType === "free"){
     premiumPool -= TOKENS_PER_CHAT;
 
 }
-        fs.writeFileSync(
-    "pool.json",
-    JSON.stringify({
+        await db
+    .collection("pools")
+    .doc("main")
+    .update({
         freePool,
         premiumPool,
         lastReset: new Date().toISOString().split("T")[0]
-    }, null, 2)
-);
+    });
+       
         console.log("Free Pool:", freePool);
 console.log("Premium Pool:", premiumPool);
 
@@ -178,7 +206,10 @@ console.log("Premium Pool:", premiumPool);
 
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => {
+app.listen(PORT, async () => {
+
+    await loadPools();
+
     console.log("=================================");
     console.log(" Smart Navio AI Server Running ");
     console.log(" Port:", PORT);
