@@ -2,7 +2,7 @@
 const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
-const fs = require("fs");
+
 const admin = require("firebase-admin");
 
 
@@ -70,6 +70,36 @@ async function loadPools() {
     }
 }
 
+async function checkDailyReset() {
+
+    const today =
+        new Date().toISOString().split("T")[0];
+
+    const doc = await db
+        .collection("pools")
+        .doc("main")
+        .get();
+
+    const data = doc.data();
+
+    if (data.lastReset !== today) {
+
+        freePool = 400000;
+        premiumPool = 100000;
+
+        await db
+            .collection("pools")
+            .doc("main")
+            .update({
+                freePool,
+                premiumPool,
+                lastReset: today
+            });
+
+        console.log("Daily pools reset");
+    }
+}
+
 const FREE_STOP_LIMIT = 50000;
 const PREMIUM_STOP_LIMIT = 10000;
 
@@ -82,6 +112,7 @@ app.get("/", (req, res) => {
 app.post("/chat", async (req, res) => {
 
     try {
+        await checkDailyReset();
         const userType = req.body.userType || "free";
 
         if (
