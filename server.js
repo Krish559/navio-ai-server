@@ -659,6 +659,20 @@ if (
         const reply =
             response.data.choices[0].message.content;
 
+        const TOKENS_PER_CHAT = 200;
+
+if(userType === "free"){
+
+    freePool -= TOKENS_PER_CHAT;
+
+}else{
+
+    premiumPool -= TOKENS_PER_CHAT;
+
+}
+        console.log("Free Pool:", freePool);
+console.log("Premium Pool:", premiumPool);
+
         chatHistories[sessionId].push({
             role: "assistant",
             content: reply
