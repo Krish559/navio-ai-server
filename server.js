@@ -110,6 +110,21 @@ app.get("/", (req, res) => {
         status: "Smart Navio AI Server is Running!"
     });
 });
+app.get("/admin/stats", async (req, res) => {
+
+    const doc = await db
+        .collection("pools")
+        .doc("main")
+        .get();
+
+    const data = doc.data();
+
+    res.json({
+        freePool: data.freePool,
+        premiumPool: data.premiumPool,
+        lastReset: data.lastReset
+    });
+});
 
 app.post("/chat", async (req, res) => {
 
