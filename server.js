@@ -87,14 +87,14 @@ async function checkDailyReset() {
         freePool = 400000;
         premiumPool = 100000;
 
-        await db
-            .collection("pools")
-            .doc("main")
-            .update({
-                freePool,
-                premiumPool,
-                lastReset: new Date().toISOString().split("T")[0]
-            });
+       await db
+    .collection("pools")
+    .doc("main")
+    .set({
+        freePool,
+        premiumPool,
+        lastReset: today
+    }, { merge: true });
 
         console.log("Daily pools reset");
     }
