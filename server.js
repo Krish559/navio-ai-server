@@ -93,7 +93,7 @@ async function checkDailyReset() {
             .update({
                 freePool,
                 premiumPool,
-                lastReset: today
+                lastReset: new Date().toISOString().split("T")[0]
             });
 
         console.log("Daily pools reset");
@@ -206,7 +206,7 @@ if(userType === "free"){
     .update({
         freePool,
         premiumPool,
-        lastReset: today
+        lastReset: new Date().toISOString().split("T")[0]
     });
        
         console.log("Free Pool:", freePool);
