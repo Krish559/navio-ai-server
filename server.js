@@ -73,7 +73,9 @@ async function loadPools() {
 async function checkDailyReset() {
 
     const today =
-        new Date().toISOString().split("T")[0];
+        new Date().toLocaleDateString("en-CA", {
+    timeZone: "Asia/Kolkata"
+})
 
     const doc = await db
         .collection("pools")
@@ -206,7 +208,9 @@ if(userType === "free"){
     .update({
         freePool,
         premiumPool,
-        lastReset: new Date().toISOString().split("T")[0]
+        lastReset: new Date().toLocaleDateString("en-CA", {
+    timeZone: "Asia/Kolkata"
+})
     });
        
         console.log("Free Pool:", freePool);
