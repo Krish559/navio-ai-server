@@ -1,6 +1,8 @@
+
 const express = require("express");
 const cors = require("cors");
 const axios = require("axios");
+const fs = require("fs");
 
 const app = express();
 
@@ -34,8 +36,12 @@ Team:
 KRISH.S and Hariharan AC
 `;
 const chatHistories = {};
-let freePool = 400000;
-let premiumPool = 100000;
+const poolData = JSON.parse(
+    fs.readFileSync("pool.json", "utf8")
+);
+
+let freePool = poolData.freePool;
+let premiumPool = poolData.premiumPool;
 
 const FREE_STOP_LIMIT = 50000;
 const PREMIUM_STOP_LIMIT = 10000;
@@ -136,6 +142,14 @@ if(userType === "free"){
     premiumPool -= TOKENS_PER_CHAT;
 
 }
+        fs.writeFileSync(
+    "pool.json",
+    JSON.stringify({
+        freePool,
+        premiumPool,
+        lastReset: new Date().toISOString().split("T")[0]
+    }, null, 2)
+);
         console.log("Free Pool:", freePool);
 console.log("Premium Pool:", premiumPool);
 
