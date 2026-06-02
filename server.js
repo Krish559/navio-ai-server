@@ -128,6 +128,50 @@ app.get("/admin/stats", async (req, res) => {
 
 app.post("/chat", async (req, res) => {
 
+    app.delete(
+"/admin/delete-user/:email",
+async (req,res)=>{
+
+    try{
+
+        const email =
+        req.params.email;
+
+        const userRecord =
+        await admin
+        .auth()
+        .getUserByEmail(email);
+
+        await admin
+        .auth()
+        .deleteUser(
+            userRecord.uid
+        );
+
+        await db
+        .collection("users")
+        .doc(email)
+        .delete();
+
+        res.json({
+            success:true
+        });
+
+    }
+
+    catch(error){
+
+        console.log(error);
+
+        res.status(500).json({
+            success:false,
+            error:error.message
+        });
+
+    }
+
+});
+
     try {
         await checkDailyReset();
         const userType = req.body.userType || "free";
