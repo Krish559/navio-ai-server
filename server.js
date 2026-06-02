@@ -7,13 +7,21 @@ const admin = require("firebase-admin");
 
 
 const app = express();
+app.options("*", cors());
 
 app.use(cors({
     origin: "*",
-    methods: ["GET", "POST"]
+    methods: [
+        "GET",
+        "POST",
+        "DELETE",
+        "PUT",
+        "OPTIONS"
+    ]
 }));
 
 app.use(express.json());
+
 
 const API_KEY = process.env.GROQ_API_KEY;
 const serviceAccount = JSON.parse(
