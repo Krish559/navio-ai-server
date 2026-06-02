@@ -143,21 +143,31 @@ async (req,res)=>{
         const email =
         req.params.email;
 
-        const userRecord =
-        await admin
-        .auth()
-        .getUserByEmail(email);
+       try{
 
-        await admin
-        .auth()
-        .deleteUser(
-            userRecord.uid
-        );
+    const userRecord =
+    await admin
+    .auth()
+    .getUserByEmail(email);
 
-        await db
-        .collection("users")
-        .doc(email)
-        .delete();
+    await admin
+    .auth()
+    .deleteUser(
+        userRecord.uid
+    );
+
+}catch(error){
+
+    console.log(
+        "Auth user not found, deleting Firestore only"
+    );
+
+}
+
+await db
+.collection("users")
+.doc(email)
+.delete();
 
         res.json({
             success:true
