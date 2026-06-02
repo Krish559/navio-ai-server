@@ -7,7 +7,7 @@ const admin = require("firebase-admin");
 
 
 const app = express();
-app.options("*", cors());
+
 
 app.use(cors({
     origin: "*",
@@ -134,9 +134,7 @@ app.get("/admin/stats", async (req, res) => {
     });
 });
 
-app.post("/chat", async (req, res) => {
-
-    app.delete(
+app.delete(
 "/admin/delete-user/:email",
 async (req,res)=>{
 
@@ -179,6 +177,10 @@ async (req,res)=>{
     }
 
 });
+
+app.post("/chat", async (req, res) => {
+
+    
 
     try {
         await checkDailyReset();
